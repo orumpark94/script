@@ -1,0 +1,32 @@
+# change_hostname.sh
+#chomod =x change_hostname.sh
+
+#!/bin/bash
+
+# 새로운 호스트네임 입력 받기
+if [ -z "$1" ]; then
+    echo "사용법: $0 <새로운 호스트네임>"
+    exit 1
+fi
+
+NEW_HOSTNAME="$1"
+
+# 현재 호스트네임 가져오기
+CURRENT_HOSTNAME=$(hostname)
+
+# hostnamectl을 사용하여 호스트네임 변경
+echo "호스트네임을 '$CURRENT_HOSTNAME' -> '$NEW_HOSTNAME' 으로 변경합니다..."
+hostnamectl set-hostname "$NEW_HOSTNAME"
+
+# /etc/hosts 파일에서 기존 호스트네임 변경
+echo "Updating /etc/hosts..."
+sed -i "s/$CURRENT_HOSTNAME/$NEW_HOSTNAME/g" /etc/hosts
+
+# 변경 적용
+echo "변경 사항을 적용합니다..."
+exec bash
+
+echo "변경 완료! 현재 호스트네임: $(hostname)"
+
+
+#스크립트 실행 ./change_hostname.sh new-hostname

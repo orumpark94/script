@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# SELinux 상태 확인
+SESTATUS=$(getenforce)
+
+if [ "$SESTATUS" == "Disabled" ]; then
+    echo "SELinux가 이미 비활성화되어 있습니다."
+    exit 0
+fi
+
+echo "SELinux를 비활성화합니다..."
+
+# SELinux 일시적 비활성화 (즉시 적용)
+setenforce 0
+
+# /etc/selinux/config 파일 수정하여 영구적으로 비활성화
+echo "SELinux 영구 비활성화를 설정합니다..."
+sed -i 's/^SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+sed -i 's/^SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
+
+# 변경 사항 적용을 위해 재부팅 권장
+echo "SELinux가 비활성화되었습니다. 변경 사항을 적용하려면 시스템을 재부팅하세요."
+echo "재부팅을 즉시 진행하려면 아래 명령을 실행하세요:"
+echo "sudo reboot"

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# 로그 파일 위치
+LOGFILE="/var/log/chrony_sync.log"
+
+echo "===== Chrony 시간 동기화 스크립트 실행 시작 =====" | tee -a "$LOGFILE"
+
+# 1. Chrony 설치 (이미 설치되어 있으면 건너뜀)
+echo "🔄 Chrony 설치 확인 중..." | tee -a "$LOGFILE"
+if ! rpm -q chrony &>/dev/null; then
+    sudo dnf install -y chrony | tee -a "$LOGFILE"
+else
+    echo "✅ Chrony가 이미 설치되어 있습니다." | tee -a "$LOGFILE"
+fi
+
+# 2. Chrony 서비스 활성화 및 시작
+echo "🔄 Chrony 서비스 활성화 및 시작..." | tee -a "$LOGFILE"
+sudo systemctl enable --now chronyd | tee -a "$LOGFILE"
+
+# 3. 즉시 시간 동기화 수행
+echo "⏳ 시간 동기화 수행 중..." | tee -a "$LOGFILE"
+sudo chronyc tracking | tee -a "$LOGFILE"
+
+# 강제 시간 동기화 (선택적)
+echo "🔄 강제 시간 동기화 수행..." | tee -a "$LOGFILE"
+sudo chronyc makestep | tee -a "$LOGFILE"
+
+# 4. 동기화 상태 확인
+echo "🔍 동기화 상태 확인..." | tee -a "$LOGFILE"
+sudo chronyc sources -v | tee -a "$LOGFILE"
+
+echo "🎉 시간 동기화 완료!" | tee -a "$LOGFILE"

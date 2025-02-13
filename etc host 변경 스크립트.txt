@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Define the host entries
+declare -A hosts
+hosts=(
+    ["192.168.1.171"]="master"
+    ["192.168.1.177"]="worker-node1"
+    ["192.168.1.178"]="worker-node2"
+)
+
+# Backup existing /etc/hosts
+cp /etc/hosts /etc/hosts.bak
+
+echo "Updating /etc/hosts file..."
+
+# Remove existing entries if they exist
+for ip in "${!hosts[@]}"; do
+    sed -i "/$ip/d" /etc/hosts
+done
+
+# Append new host entries
+echo "" >> /etc/hosts
+for ip in "${!hosts[@]}"; do
+    echo "$ip ${hosts[$ip]}" >> /etc/hosts
+    echo "Added: $ip ${hosts[$ip]}"
+done
+
+echo "Update complete."

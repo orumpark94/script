@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# 현재 SWAP 상태 확인
+if free | grep -i swap | awk '{print $2}' | grep -q '^0$'; then
+    echo "SWAP이 이미 비활성화되어 있습니다."
+    exit 0
+fi
+
+echo "SWAP 비활성화를 진행합니다..."
+
+# 1. 현재 활성화된 SWAP 비활성화
+swapoff -a
+
+# 2. /etc/fstab에서 SWAP 항목 제거하여 영구적으로 비활성화
+echo "재부팅 후에도 SWAP이 비활성화되도록 설정합니다..."
+sed -i '/swap/d' /etc/fstab
+
+# 변경 사항 적용 확인
+echo "현재 SWAP 상태:"
+free -h
+
+echo "SWAP이 비활성화되었습니다. 변경 사항이 적용되었습니다."
