@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        DEPLOY_PATH = "/var/www/html"  // 배포할 서버의 경로
+        SERVER_IP = "192.168.1.178"   // 실제 배포할 서버의 IP
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                git branch: 'main', url: 'https://github.com/orumpark94/devops-test1.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Build step: No build needed for Nginx static files'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                sh '''
+                    echo "Removing old files from ${DEPLOY_PATH} on ${SERVER_IP}..."
+                    ssh jenkins@${SERVER_IP} "sudo rm -rf ${DEPLOY_PATH}/*"
+
+                    echo "Copying new files..."
+                    rsync -av --exclude='.git' --exclude='Jenkinsfile' . jenkins@${SERVER_IP}:${DEPLOY_PATH}/
+
+                    echo "Restarting Nginx..."
+                    ssh jenkins@${SERVER_IP} "sudo systemctl restart nginx"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}
