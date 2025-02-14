@@ -1,5 +1,5 @@
 # script
-OS 설정 관련 자동화 스크립트
+ 자동화 스크립트
 
 #1 change hostname 스크립트
 
